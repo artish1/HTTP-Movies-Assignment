@@ -1,6 +1,18 @@
 import React from "react";
 import axios from "axios";
 import MovieCard from "./MovieCard";
+import { Button, withStyles } from "@material-ui/core";
+
+const StyledButton = withStyles({
+  root: {
+    margin: "5px",
+    width: "200px"
+  },
+  label: {
+    textTransform: "capitalize"
+  }
+})(Button);
+
 export default class Movie extends React.Component {
   constructor(props) {
     super(props);
@@ -31,7 +43,23 @@ export default class Movie extends React.Component {
     addToSavedList(this.state.movie);
   };
 
+  updateMovie = () => {
+    this.props.history.push(`/update-movie/${this.props.match.params.id}`);
+  };
+
+  deleteMovie = () => {
+    axios
+      .delete(`http://localhost:5000/api/movies/${this.props.match.params.id}`)
+      .then(res => {
+        console.log(res);
+        this.props.history.push("/");
+      })
+      .catch(err => console.log(err));
+  };
+
   render() {
+    console.log(this.props);
+
     if (!this.state.movie) {
       return <div>Loading movie information...</div>;
     }
@@ -39,6 +67,18 @@ export default class Movie extends React.Component {
     return (
       <div className="save-wrapper">
         <MovieCard movie={this.state.movie} />
+        <StyledButton onClick={this.updateMovie} variant="contained">
+          Update
+        </StyledButton>
+
+        <StyledButton
+          onClick={this.deleteMovie}
+          color="secondary"
+          variant="contained"
+        >
+          Delete
+        </StyledButton>
+
         <div className="save-button" onClick={this.saveMovie}>
           Save
         </div>
