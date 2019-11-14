@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 import {
   Card,
   Typography,
@@ -15,7 +17,7 @@ const useStyles = makeStyles(theme => ({
   },
   button: {
     marginTop: theme.spacing(1),
-    width: 300
+    width: 350
   },
   formContainer: {
     display: "flex",
@@ -24,11 +26,12 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center"
   },
   textField: {
-    width: "300px"
+    width: "350px"
   }
 }));
 
 const UpdateForm = () => {
+  const { id } = useParams();
   const [currentMovie, setCurrentMovie] = useState({
     id: -1,
     title: "",
@@ -38,10 +41,20 @@ const UpdateForm = () => {
   });
   const classes = useStyles();
 
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/api/movies/${id}`)
+      .then(res => setCurrentMovie(res.data))
+      .catch(err => console.log(err.response));
+  }, [id]);
   const handleSubmit = e => {
     e.preventDefault();
-    console.log("Submitted");
   };
+
+  const onTextChange = e => {
+    setCurrentMovie({ ...currentMovie, [e.target.name]: e.target.value });
+  };
+
   return (
     <Card className={classes.container}>
       <Typography variant="h2" component="h1">
@@ -56,6 +69,7 @@ const UpdateForm = () => {
           margin="normal"
           variant="outlined"
           value={currentMovie.title}
+          onChange={onTextChange}
         />
         <TextField
           id="director"
@@ -65,6 +79,7 @@ const UpdateForm = () => {
           margin="normal"
           variant="outlined"
           value={currentMovie.director}
+          onChange={onTextChange}
         />
         <TextField
           id="metascore"
@@ -74,9 +89,15 @@ const UpdateForm = () => {
           margin="normal"
           variant="outlined"
           type="number"
+          onChange={onTextChange}
           value={currentMovie.metascore}
         />
-        <Button variant="contained" color="primary" className={classes.button}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          className={classes.button}
+        >
           Update Movie
         </Button>
       </form>
