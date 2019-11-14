@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import {
   Card,
@@ -30,15 +30,18 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const initialFormState = {
+  id: -1,
+  title: "",
+  director: "",
+  metascore: 0,
+  stars: []
+};
+
 const UpdateForm = () => {
   const { id } = useParams();
-  const [currentMovie, setCurrentMovie] = useState({
-    id: -1,
-    title: "",
-    director: "",
-    metascore: 0,
-    stars: []
-  });
+  const history = useHistory();
+  const [currentMovie, setCurrentMovie] = useState(initialFormState);
   const classes = useStyles();
 
   useEffect(() => {
@@ -49,6 +52,14 @@ const UpdateForm = () => {
   }, [id]);
   const handleSubmit = e => {
     e.preventDefault();
+    axios
+      .put(`http://localhost:5000/api/movies/${id}`, currentMovie)
+      .then(res => {
+        console.log(res);
+        setCurrentMovie(initialFormState);
+        history.push("/");
+      })
+      .catch(err => console.log(err));
   };
 
   const onTextChange = e => {
